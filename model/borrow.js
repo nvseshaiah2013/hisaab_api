@@ -7,22 +7,23 @@ const borrowSchema = new Schema({
     borrower: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User'
+        ref: 'User',
+        index : true
     },
     borowee: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User'
+        ref: 'User',
+        index : true
     },
     expected_return_date: {
         type: mongoose.Schema.Types.Date,
         required: true
     },
     actual_return_date: {
-        type: mongoose.Schema.Types.Date,
-        required: true
+        type: mongoose.Schema.Types.Date
     },
-    place_of_borrow: {
+    place : {
         type: mongoose.Schema.Types.String,
         required: true
     },
@@ -32,6 +33,7 @@ const borrowSchema = new Schema({
     status: {
         type: mongoose.Schema.Types.Number,
         required: true,
+        default : 0,
         min: 0,        /*  0- Pending 1-Approved 2- rejected 3 - Returned */
         max: 4
     }
