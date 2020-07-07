@@ -64,5 +64,6 @@ const BorrowItem = Borrow.discriminator('Item',
     }),
     options);
 
+module.exports.Borrow = Borrow;
 module.exports.BorrowMoney = BorrowMoney;
 module.exports.BorrowItem = BorrowItem;

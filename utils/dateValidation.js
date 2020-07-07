@@ -11,3 +11,7 @@ module.exports.getFormattedDate = (date) => {
 module.exports.isAfterOrToday = (date) => {
     return moment(date,'YYYY-MM-DD').isSameOrAfter(moment().format('YYYY-MM-DD'));
 }
+
+module.exports.isTokenValid = (token,validTill) => {
+    return moment(new Date()).isSameOrBefore(moment(token).add(validTill,'minutes'));
+}

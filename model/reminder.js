@@ -4,11 +4,13 @@ const Schema = mongoose.Schema;
 const reminderSchema = new Schema({
     borrower: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref : 'User'
     },
     borrowee: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref : 'User'
     },
     header: {
         type: mongoose.Schema.Types.String,
