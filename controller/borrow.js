@@ -24,7 +24,7 @@ const BorrowController = {
         if (req.query.pageNo && isNaN(req.query.pageNo)) {
             let error = new Error(`Invalid Request`);
             error.status = 400;
-            return next(err);
+            return next(error);
         }
         BorrowMoney.find({ borowee: req.user._id })
             .skip((pageNo - 1) * pageSize)
@@ -56,6 +56,11 @@ const BorrowController = {
                 if (!user) {
                     let error = new Error(`The user id ${req.body.borowee} does not exist`);
                     error.status = 404;
+                    throw error;
+                }
+                if(user._id.equals(req.user._id) ){
+                    let error = new Error(`You cannot borrow money to yourself`);
+                    error.status = 403;
                     throw error;
                 }
                 let borrow = new BorrowMoney({
@@ -92,7 +97,7 @@ const BorrowController = {
         if (req.query.pageNo && isNaN(req.query.pageNo)) {
             let error = new Error(`Invalid Request`);
             error.status = 400;
-            return next(err);
+            return next(error);
         }
         BorrowItem.find({ borowee: req.user._id })
             .skip((pageNo - 1) * pageSize)
@@ -124,6 +129,11 @@ const BorrowController = {
                 if (!user) {
                     let error = new Error(`The user id ${req.body.borowee} does not exist`);
                     error.status = 404;
+                    throw error;
+                }
+                if(user._id.equals(req.user._id) ){
+                    let error = new Error(`You cannot borrow money to yourself`);
+                    error.status = 403;
                     throw error;
                 }
                 let borrow = new BorrowItem({
@@ -161,7 +171,7 @@ const BorrowController = {
         if (req.query.pageNo && isNaN(req.query.pageNo)) {
             let error = new Error(`Invalid Request`);
             error.status = 400;
-            return next(err);
+            return next(error);
         }
         BorrowMoney.find({ borrower: req.user._id })
             .skip((pageNo - 1) * pageSize)
@@ -182,7 +192,7 @@ const BorrowController = {
         if (req.query.pageNo && isNaN(req.query.pageNo)) {
             let error = new Error(`Invalid Request`);
             error.status = 400;
-            return next(err);
+            return next(error);
         }
         BorrowItem.find({ borrower: req.user._id })
             .skip((pageNo - 1) * pageSize)
@@ -400,7 +410,6 @@ const BorrowController = {
                     error.status = 404;
                     throw error;
                 }
-                console.log(token.updatedAt);
                 let valid = isTokenValid(token.updatedAt, token.validTill);
                 if (valid) {
                     if (secretToken === token.secretToken)
@@ -422,7 +431,7 @@ const BorrowController = {
                 return Token.deleteMany({ borrow_id: borrow._id });
             })
             .then((token) => {
-                res.json({ status: true, message: 'Borrow Returned !' });
+                res.json({ status: true, message: 'Borrow Approved !' });
             })
             .catch(err => next(err));
     },
@@ -451,7 +460,6 @@ const BorrowController = {
                     error.status = 404;
                     throw error;
                 }
-                console.log(token.updatedAt);
                 let valid = isTokenValid(token.updatedAt, token.validTill);
                 if (valid) {
                     if (secretToken === token.secretToken)

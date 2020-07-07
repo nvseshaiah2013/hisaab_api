@@ -12,6 +12,54 @@ shortid.characters('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567
 router.use(bodyParser.json());
 
 const TokenController = {
+    getToken : (req,res,next) => {
+        let { borrowId } = req.params;
+        Borrow.findOne({ _id : borrowId })
+            .then((borrow) => {
+                if(!borrow){
+                    let error = new Error(`Borrow with id ${borrowId} does not exist!`);
+                    error.status = 404;
+                    throw error;
+                }
+                if(borrow.status === 2 || borrow.status === 3){
+                    let error = new Error(`Unauthorized Operation on ${borrowId}`);
+                    error.status = 401;
+                    throw error;
+                }
+                if(borrow.status === 0 && borrow.borrower.equals(req.user._id)){
+                    let error = new Error(`Unauthorized Operation on ${borrowId}`);
+                    error.status = 401;
+                    throw error;
+                }
+                if(borrow.status === 1 && borrow.borowee.equals(req.user._id)){
+                    let error = new Error(`Unauthorized Operation on ${borrowId}`);
+                    error.status = 401;
+                    throw error;
+                }
+                return borrow;
+            })
+            .then((borrow) => {
+                return Token.findOne({ borrow_id : borrowId });
+            })
+            .then((token) => {
+                if(!token) {
+                    let error = new Error('The token does not exist');
+                    error.status = 404;
+                    throw error;
+                }
+                else {
+                    if(token.user_id.equals(req.user._id)){
+                        let error = new Error('Unauthorized Operation');
+                        error.status = 401;
+                        throw error;
+                    }
+                    else {
+                        res.json({ status : true, message : 'Token Fetched!', token  : token.secretToken });
+                    }
+                }
+            })
+            .catch(err=>next(err));
+    },
     generateToken: (req, res, next) => {
         Borrow.findOne({ _id: req.params.borrowId })
             .then((borrow) => {
@@ -20,14 +68,24 @@ const TokenController = {
                     error.status = 400;
                     throw error;
                 }
-                if (borrow.borowee !== req.user._id && borrow.borrower !== req.user._id) {
-                    let error = new Error(`No Borrow with ${req.params.borrowId} does not belong to you`);
+                if (!borrow.borowee.equals(req.user._id) && !borrow.borrower.equals(req.user._id)) {
+                    let error = new Error(`No, Borrow with ${req.params.borrowId} does not belong to you`);
                     error.status = 400;
                     throw error;
                 }
                 if (borrow.status == 2 || borrow.status == 3) {
                     let error = new Error(`Token cannot be generated for borrow ${req.params.borrowId}!`);
                     error.status = 400;
+                    throw error;
+                }
+                if(borrow.status == 0 && !borrow.borrower.equals(req.user._id)){
+                    let error = new Error(`Unauthorized Operation on Borrow ${req.params.borrowId}`);
+                    error.status = 401;
+                    throw error;
+                }
+                if(borrow.status == 1 && !borrow.borowee.equals(req.user._id)){
+                    let error = new Error(`Unauthorized Operation on Borrow ${req.params.borrowId}`);
+                    error.status = 401;
                     throw error;
                 }
                 return borrow;

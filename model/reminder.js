@@ -5,12 +5,14 @@ const reminderSchema = new Schema({
     borrower: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref : 'User'
+        ref : 'User',
+        index : true
     },
-    borrowee: {
+    borowee: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref : 'User'
+        ref : 'User',
+        index : true
     },
     header: {
         type: mongoose.Schema.Types.String,

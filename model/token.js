@@ -8,12 +8,14 @@ const tokenSchema = new Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User'
+        ref: 'User',
+        index : true
     },
     borrow_id: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'Borrow'
+        ref: 'Borrow',
+        index : true
     },
     secretToken: {
         type: mongoose.Schema.Types.String,
@@ -21,7 +23,7 @@ const tokenSchema = new Schema({
     },
     validTill: {
         type: mongoose.Schema.Types.Number,
-        default: 10
+        default: 2
     }
 },
     {
