@@ -8,10 +8,12 @@ const userRouter = require('./routes/user');
 const tokenRouter = require('./routes/token');
 const reminderRouter = require('./routes/reminder');
 const borrowRouter = require('./routes/borrow');
+const cors = require('cors');
 
 app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(logger('dev'));
+app.use(cors());
 
 app.use((req,res,next) => {
     res.setHeader('Content-Type','application/json');
@@ -31,6 +33,6 @@ app.use((err,req,res,next) => {
     res.json({status : false, message : err.message});
 });
 
-app.listen(3000,'localhost',()=>{
+app.listen(3001,'localhost',()=>{
     console.log('Server Started');
 });

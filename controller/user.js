@@ -48,7 +48,7 @@ const UserController = {
                 }
             })
             .then((user) => {
-                res.json({ status: true, message: 'You details saved Successfully!', user: user });
+                res.json({ status: true, message: 'You details saved Successfully!' });
             })
             .catch((err) => next(err));
     },
