@@ -13,7 +13,6 @@ const cors = require('cors');
 app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(logger('dev'));
-app.use(cors());
 
 app.use((req,res,next) => {
     res.setHeader('Content-Type','application/json');

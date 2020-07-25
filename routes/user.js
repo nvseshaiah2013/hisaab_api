@@ -1,12 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controller/user');
+const cors = require('../config/cors');
 
-router.post('/login',UserController.login);
-router.post('/signup',UserController.signup);
-router.post('/changePassword',UserController.changePassword);
+router.route('/login')
+      .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
+      .post(cors.corsWithOptions,UserController.login);
+
+router.route('/signup')
+      .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
+      .post(cors.corsWithOptions,UserController.signup);
+
+router.route('/changePassword')
+      .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
+      .post(cors.corsWithOptions,UserController.changePassword);
+
 router.route('/forgotPassword')
-      .get(UserController.requestForgotPassword)
-      .post(UserController.forgotPassword);
+      .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
+      .get(cors.corsWithOptions,UserController.requestForgotPassword)
+      .post(cors.corsWithOptions,UserController.forgotPassword);
 
 module.exports = router;
