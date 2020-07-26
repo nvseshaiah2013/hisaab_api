@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const fetchUsers = require('../controller/user').fetchUsers;
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ mongoose.connect(
         useFindAndModify:false
     }).then(succ=>{
         console.log("Successfully Connected to DB " );
+        fetchUsers();
     }).catch(err=>{
         console.log("Error: " + err);
     });

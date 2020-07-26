@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const UserController = require('../controller/user');
+const UserController = require('../controller/user').UserController;
 const cors = require('../config/cors');
+
+
+router.route('/')
+      .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
+      .get(UserController.getUsers);
 
 router.route('/login')
       .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))

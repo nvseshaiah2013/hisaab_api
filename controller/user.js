@@ -6,6 +6,8 @@ const router = express();
 
 router.use(bodyParser.json());
 
+let users = [];
+
 const UserController = {
     login: (req, res, next) => {
         User.findOne({ username: req.body.username })
@@ -60,7 +62,17 @@ const UserController = {
     },
     requestForgotPassword: (req, res, next) => {
 
+    },
+    getUsers : (req,res,next ) => {
+        let username = req.body.username;
+        let filtered_users = users.filter(user => user.username.indexOf(username) >= 0 );
+        res.json({ status : true, message : 'Searched', users : filtered_users });
     }
 }
 
-module.exports = UserController;
+module.exports.UserController = UserController;
+module.exports.fetchUsers =  () => {
+    User.find()
+        .then((users_)=> users = users_.map(user=> ({ name : user.name, username : user.username })))
+        .catch((err)=>console.log(err));
+};
