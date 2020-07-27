@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const UserController = require('../controller/user').UserController;
 const cors = require('../config/cors');
+const auth = require('../config/auth');
 
 
 router.route('/')
       .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
-      .get(UserController.getUsers);
+      .all(auth.verifyUser)
+      .get(cors.corsWithOptions,UserController.getUsers);
 
 router.route('/login')
       .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
@@ -18,6 +20,7 @@ router.route('/signup')
 
 router.route('/changePassword')
       .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
+      .all(auth.verifyUser)
       .post(cors.corsWithOptions,UserController.changePassword);
 
 router.route('/forgotPassword')

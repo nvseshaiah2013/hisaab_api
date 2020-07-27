@@ -50,6 +50,7 @@ const UserController = {
                 }
             })
             .then((user) => {
+                users.push({ name : user.name , username : user.username });
                 res.json({ status: true, message: 'You details saved Successfully!' });
             })
             .catch((err) => next(err));
@@ -64,7 +65,7 @@ const UserController = {
 
     },
     getUsers : (req,res,next ) => {
-        let username = req.body.username;
+        let username = req.query.username;
         let filtered_users = users.filter(user => user.username.indexOf(username) >= 0 );
         res.json({ status : true, message : 'Searched', users : filtered_users });
     }
