@@ -10,7 +10,7 @@ router.use(bodyParser.json());
 router.route('/borrowMoney')
     .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
     .all(cors.corsWithOptions,authenticate.verifyUser)
-    .get(BorrowController.getBorrowedMoney)
+    .get(BorrowController.getLentMoney)
     .post(BorrowController.borrowMoney);
 
 router.route('/borrowMoney/:borrowId')
@@ -27,7 +27,7 @@ router.route('/borrowMoney/:borrowId/return')
 router.route('/borrowItem')
     .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
     .all(cors.corsWithOptions,authenticate.verifyUser)
-    .get(BorrowController.getBorrowedItems)
+    .get(BorrowController.getLentItems)
     .post(BorrowController.borrowItem);
 
 router.route('/borrowItem/:borrowId')
@@ -41,15 +41,15 @@ router.route('/borrowItem/:borrowId/return')
     .all(cors.corsWithOptions,authenticate.verifyUser)
     .post(BorrowController.returnBorrow);
 
-router.route('/givenMoney')
+router.route('/takenMoney')
     .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
     .all(cors.corsWithOptions,authenticate.verifyUser)
-    .get(BorrowController.getLentMoney);
+    .get(BorrowController.getBorrowedMoney);
 
-router.route('/givenItems')
+router.route('/takenItems')
     .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
     .all(cors.corsWithOptions,authenticate.verifyUser)
-    .get(BorrowController.getLentItems);
+    .get(BorrowController.getBorrowedItems);
 
 router.route('/validateborrow/:borrowId')
     .options((req,res) => res.sendStatus(200))

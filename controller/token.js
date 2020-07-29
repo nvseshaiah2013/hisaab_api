@@ -17,22 +17,22 @@ const TokenController = {
         Borrow.findOne({ _id : borrowId })
             .then((borrow) => {
                 if(!borrow){
-                    let error = new Error(`Borrow with id ${borrowId} does not exist!`);
+                    let error = new Error(`Requested Resource not found!`);
                     error.status = 404;
                     throw error;
                 }
                 if(borrow.status === 2 || borrow.status === 3){
-                    let error = new Error(`Unauthorized Operation on ${borrowId}`);
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 401;
                     throw error;
                 }
                 if(borrow.status === 0 && borrow.borrower.equals(req.user._id)){
-                    let error = new Error(`Unauthorized Operation on ${borrowId}`);
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 401;
                     throw error;
                 }
                 if(borrow.status === 1 && borrow.borowee.equals(req.user._id)){
-                    let error = new Error(`Unauthorized Operation on ${borrowId}`);
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 401;
                     throw error;
                 }
@@ -43,13 +43,13 @@ const TokenController = {
             })
             .then((token) => {
                 if(!token) {
-                    let error = new Error('The token does not exist');
+                    let error = new Error('Requested Token does not exist. Token needs to be created!');
                     error.status = 404;
                     throw error;
                 }
                 else {
                     if(token.user_id.equals(req.user._id)){
-                        let error = new Error('Unauthorized Operation');
+                        let error = new Error('Unauthorized Operation : Cannot be Performed');
                         error.status = 401;
                         throw error;
                     }
@@ -64,27 +64,27 @@ const TokenController = {
         Borrow.findOne({ _id: req.params.borrowId })
             .then((borrow) => {
                 if (!borrow) {
-                    let error = new Error(`No Borrow with ${req.params.borrowId} found`);
+                    let error = new Error(`Requested resource not found!`);
                     error.status = 400;
                     throw error;
                 }
                 if (!borrow.borowee.equals(req.user._id) && !borrow.borrower.equals(req.user._id)) {
-                    let error = new Error(`No, Borrow with ${req.params.borrowId} does not belong to you`);
+                    let error = new Error(`No, This resourse cannot be accessed by you!`);
                     error.status = 400;
                     throw error;
                 }
                 if (borrow.status == 2 || borrow.status == 3) {
-                    let error = new Error(`Token cannot be generated for borrow ${req.params.borrowId}!`);
+                    let error = new Error(`Token cannot be generated for borrow for this resource`);
                     error.status = 400;
                     throw error;
                 }
                 if(borrow.status == 0 && !borrow.borrower.equals(req.user._id)){
-                    let error = new Error(`Unauthorized Operation on Borrow ${req.params.borrowId}`);
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 401;
                     throw error;
                 }
                 if(borrow.status == 1 && !borrow.borowee.equals(req.user._id)){
-                    let error = new Error(`Unauthorized Operation on Borrow ${req.params.borrowId}`);
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 401;
                     throw error;
                 }

@@ -22,14 +22,15 @@ const BorrowController = {
             pageNo = parseInt(req.query.pageNo);
         }
         if (req.query.pageNo && isNaN(req.query.pageNo)) {
-            let error = new Error(`Invalid Request`);
+            let error = new Error(`Unauthorized Operation : Cannot be Performed`);
             error.status = 400;
             return next(error);
         }
         BorrowMoney.find({ borowee: req.user._id })
             .skip((pageNo - 1) * pageSize)
             .limit(pageSize)
-            .populate('borrower')
+            .select('-_id -password -__v')
+            .populate('borrower','-_id -password -__v')
             .lean()
             .then((borrows) => {
                 res.json({ status: true, message: 'Borrows Fetched!', borrows: borrows })
@@ -84,7 +85,7 @@ const BorrowController = {
                 return BorrowMoney.findOne({ _id: token.borrow_id });
             })
             .then((borrow) => {
-                res.json({ status: true, message: 'Your borrow created! Go Ahead and Validate.', borrow: borrow });
+                res.json({ status: true, message: 'Your borrow created! Navigate to Given Money and Validate.', borrow: borrow });
             })
             .catch(err => next(err));
     },
@@ -102,7 +103,8 @@ const BorrowController = {
         BorrowItem.find({ borowee: req.user._id })
             .skip((pageNo - 1) * pageSize)
             .limit(pageSize)
-            .populate('borrower')
+            .select('-_id -password -__v')
+            .populate('borrower','-_id -password -__v')
             .lean()
             .then((borrows) => {
                 res.json({ status: true, message: 'Borrows Fetched!', borrows: borrows })
@@ -158,7 +160,7 @@ const BorrowController = {
                 return BorrowItem.findOne({ _id: token.borrow_id });
             })
             .then((borrow) => {
-                res.json({ status: true, message: 'Your borrow created! Go Ahead and Validate.', borrow: borrow });
+                res.json({ status: true, message: 'Your borrow created! Navigate to Given Items and Validate.', borrow: borrow });
             })
             .catch(err => next(err));
     },
@@ -169,14 +171,15 @@ const BorrowController = {
             pageNo = parseInt(req.query.pageNo);
         }
         if (req.query.pageNo && isNaN(req.query.pageNo)) {
-            let error = new Error(`Invalid Request`);
+            let error = new Error(`Unauthorized Operation : Cannot be Performed`);
             error.status = 400;
             return next(error);
         }
         BorrowMoney.find({ borrower: req.user._id })
             .skip((pageNo - 1) * pageSize)
             .limit(pageSize)
-            .populate('borowee')
+            .select('-_id -password -__v')
+            .populate('borowee','-_id -password -__v')
             .lean()
             .then((borrows) => {
                 res.json({ status: true, message: 'Lents Fetched!', borrows: borrows })
@@ -190,14 +193,15 @@ const BorrowController = {
             pageNo = parseInt(req.query.pageNo);
         }
         if (req.query.pageNo && isNaN(req.query.pageNo)) {
-            let error = new Error(`Invalid Request`);
+            let error = new Error(`Unauthorized Operation : Cannot be Performed`);
             error.status = 400;
             return next(error);
         }
         BorrowItem.find({ borrower: req.user._id })
             .skip((pageNo - 1) * pageSize)
             .limit(pageSize)
-            .populate('borowee')
+            .select('-_id -password -__v')
+            .populate('borowee','-_id -password -__v')
             .lean()
             .then((borrows) => {
                 res.json({ status: true, message: 'Lents Fetched!', borrows: borrows })
@@ -210,7 +214,7 @@ const BorrowController = {
         BorrowMoney.findOne({ _id: borrowId, borrower: req.user._id })
             .then((borrow) => {
                 if (!borrower) {
-                    let error = new Error(`The borrow with ${borrowId} does not exist`);
+                    let error = new Error(`The requested resource cannot be found!`);
                     error.status = 404;
                     throw error;
                 }
@@ -263,7 +267,7 @@ const BorrowController = {
                 return BorrowItem.findOne({ _id: token.borrow_id });
             })
             .then((borrow) => {
-                res.json({ status: true, message: 'Your borrow created! Go Ahead and Validate.', borrow: borrow });
+                res.json({ status: true, message: 'Your borrow updated! You need to validate again.', borrow: borrow });
             })
             .catch(err => next(err));
     },
@@ -273,7 +277,7 @@ const BorrowController = {
         BorrowItem.findOne({ _id: borrowId, borrower: req.user._id })
             .then((borrow) => {
                 if (!borrower) {
-                    let error = new Error(`The borrow with ${borrowId} does not exist`);
+                    let error = new Error(`The requested resource does not exist!`);
                     error.status = 404;
                     throw error;
                 }
@@ -329,7 +333,7 @@ const BorrowController = {
                 return BorrowItem.findOne({ _id: token.borrow_id });
             })
             .then((borrow) => {
-                res.json({ status: true, message: 'Your borrow created! Go Ahead and Validate.', borrow: borrow });
+                res.json({ status: true, message: 'Your borrow updated! You need to validate again.', borrow: borrow });
             })
             .catch(err => next(err));
     },
@@ -338,12 +342,12 @@ const BorrowController = {
         Borrow.findOne({ _id: borrowId, borrower: req.user._id })
             .then((borrow) => {
                 if (!borrow) {
-                    let error = new Error(`Borrow with borrow id ${borrowId} does not exist`);
+                    let error = new Error(`The requested resourse does not exist!`);
                     error.status = 404;
                     throw error;
                 }
                 if (borrow.status !== 0 || borrow.status !== 2) {
-                    let error = new Error(`This operation is not authorized on borrow ${borrowId}`);
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 401;
                     throw error;
                 }
@@ -362,12 +366,12 @@ const BorrowController = {
         Borrow.findOne({ _id: borrowId, borowee: req.user._id })
             .then((borrow) => {
                 if (!borrow) {
-                    let error = new Error(`Borrow with borrow Id ${borrowId} does not exist`);
+                    let error = new Error(`The requested resource does not exist!`);
                     error.status = 404;
                     throw error;
                 }
                 if (borrow.status !== 1) {
-                    let error = new Error(`The operation is not authorized on Borrow id :${borrowId}`);
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 404;
                     throw error;
                 }
@@ -390,12 +394,12 @@ const BorrowController = {
         Borrow.findOne({ _id: req.params.borrowId, borrower: req.user._id })
             .then((borrow) => {
                 if (!borrow) {
-                    let error = new Error(`Borrow with borrow Id ${req.params.borrowId} does not exist`);
+                    let error = new Error(`The requested resource does not exist!`);
                     error.status = 404;
                     throw error;
                 }
                 if (borrow.status !== 0) {
-                    let error = new Error(`The operation is not authorised on borrow Id ${req.params.borrowId}`);
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 401;
                     throw error;
                 }
@@ -406,7 +410,7 @@ const BorrowController = {
             })
             .then((token) => {
                 if (!token) {
-                    let error = new Error(`Token not generated for Borrow with id ${req.params.borrowId}`);
+                    let error = new Error(`Token not generated for this borrow!`);
                     error.status = 404;
                     throw error;
                 }
@@ -440,12 +444,12 @@ const BorrowController = {
         Borrow.findOne({ _id: req.params.borrowId, borowee: req.user._id })
             .then((borrow) => {
                 if (!borrow) {
-                    let error = new Error(`Borrow with borrow Id ${req.params.borrowId} does not exist`);
+                    let error = new Error(`The requested resource does not exist!`);
                     error.status = 404;
                     throw error;
                 }
                 if (borrow.status !== 1) {
-                    let error = new Error(`The operation is not authorised on borrow Id ${req.params.borrowId}`);
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 401;
                     throw error;
                 }
@@ -456,7 +460,7 @@ const BorrowController = {
             })
             .then((token) => {
                 if (!token) {
-                    let error = new Error(`Token not generated for Borrow with id ${req.params.borrowId}`);
+                    let error = new Error(`Token not generated.`);
                     error.status = 404;
                     throw error;
                 }

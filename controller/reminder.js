@@ -44,7 +44,7 @@ const ReminderController = {
             Reminder.findOne( { _id : reminderId, borowee : req.user._id  })
                 .then((reminder) => {
                     if(!reminder) {
-                        let error = new Error(`Reminder with id ${reminderId} not found!`);
+                        let error = new Error(`The requested resource does not exist!`);
                         error.status = 404;
                         throw error;
                     }
@@ -103,7 +103,7 @@ const ReminderController = {
         Reminder.findOne({ _id : reminderId })
             .then((reminder) => {
                 if(!reminder) {
-                    let error = new Error(`Reminder with id ${reminderId} is not found`);
+                    let error = new Error(`The requested resouce does not exist!`);
                     error.status = 404;
                     throw error;
                 }
