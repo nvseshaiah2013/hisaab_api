@@ -29,8 +29,8 @@ const BorrowController = {
         BorrowMoney.find({ borowee: req.user._id })
             .skip((pageNo - 1) * pageSize)
             .limit(pageSize)
-            .select('-_id -password -__v')
-            .populate('borrower','-_id -password -__v')
+            .select('-__v')
+            .populate('borrower', '-_id -password -__v')
             .lean()
             .then((borrows) => {
                 res.json({ status: true, message: 'Borrows Fetched!', borrows: borrows })
@@ -59,7 +59,7 @@ const BorrowController = {
                     error.status = 404;
                     throw error;
                 }
-                if(user._id.equals(req.user._id) ){
+                if (user._id.equals(req.user._id)) {
                     let error = new Error(`You cannot borrow money to yourself`);
                     error.status = 403;
                     throw error;
@@ -103,8 +103,8 @@ const BorrowController = {
         BorrowItem.find({ borowee: req.user._id })
             .skip((pageNo - 1) * pageSize)
             .limit(pageSize)
-            .select('-_id -password -__v')
-            .populate('borrower','-_id -password -__v')
+            .select('-__v')
+            .populate('borrower', '-_id -password -__v')
             .lean()
             .then((borrows) => {
                 res.json({ status: true, message: 'Borrows Fetched!', borrows: borrows })
@@ -133,7 +133,7 @@ const BorrowController = {
                     error.status = 404;
                     throw error;
                 }
-                if(user._id.equals(req.user._id) ){
+                if (user._id.equals(req.user._id)) {
                     let error = new Error(`You cannot borrow money to yourself`);
                     error.status = 403;
                     throw error;
@@ -178,8 +178,8 @@ const BorrowController = {
         BorrowMoney.find({ borrower: req.user._id })
             .skip((pageNo - 1) * pageSize)
             .limit(pageSize)
-            .select('-_id -password -__v')
-            .populate('borowee','-_id -password -__v')
+            .select('-__v')
+            .populate('borowee', '-_id -password -__v')
             .lean()
             .then((borrows) => {
                 res.json({ status: true, message: 'Lents Fetched!', borrows: borrows })
@@ -200,8 +200,8 @@ const BorrowController = {
         BorrowItem.find({ borrower: req.user._id })
             .skip((pageNo - 1) * pageSize)
             .limit(pageSize)
-            .select('-_id -password -__v')
-            .populate('borowee','-_id -password -__v')
+            .select('-__v')
+            .populate('borowee', '-_id -password -__v')
             .lean()
             .then((borrows) => {
                 res.json({ status: true, message: 'Lents Fetched!', borrows: borrows })
@@ -486,6 +486,35 @@ const BorrowController = {
             })
             .then((token) => {
                 res.json({ status: true, message: 'Borrow Returned !' });
+            })
+            .catch(err => next(err));
+    },
+    rejectBorrow: (req, res, next) => {
+        Borrow.findOne({ _id: req.params.borrowId, borowee: req.user._id })
+            .then(borrow => {
+                if (!borrow) {
+                    let error = new Error(`The requested resource does not exist!`);
+                    error.status = 404;
+                    throw error;
+                }
+                if (borrow.status !== 0) {
+                    let error = new Error(`Unauthorized Operation : Cannot be Performed`);
+                    error.status = 401;
+                    throw error;
+                }
+                return Borrow.updateOne({ _id : borrow._id }, { $set :  { status : 2 }});
+            })
+            .then(borrow => {
+                return Token.findOne({ borrow_id : borrow._id });
+            })
+            .then(token => {
+                if (token) {
+                    return token.deleteOne();
+                }
+                return {};
+            })
+            .then(token => {
+                res.json({ status: true, message: 'You rejected the order!' });
             })
             .catch(err => next(err));
     }

@@ -52,14 +52,19 @@ router.route('/takenItems')
     .get(BorrowController.getBorrowedItems);
 
 router.route('/validateborrow/:borrowId')
-    .options((req,res) => res.sendStatus(200))
-    .all(authenticate.verifyUser)
+    .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
+    .all(cors.corsWithOptions,authenticate.verifyUser)
     .post(BorrowController.validateBorrow);
 
 router.route('/validatereturn/:borrowId')
     .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
     .all(cors.corsWithOptions,authenticate.verifyUser)
     .post(BorrowController.validateReturn);
+
+router.route('/reject/:borrowId')
+    .options(cors.corsWithOptions, (req,res) => res.sendStatus(200))
+    .all(cors.corsWithOptions, authenticate.verifyUser)
+    .post(BorrowController.rejectBorrow);
     
 
 module.exports = router;

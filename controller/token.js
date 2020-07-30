@@ -107,7 +107,7 @@ const TokenController = {
                 }
             })
             .then((token) => {
-                res.json({ status: true, message: 'Token Generated!' });
+                res.json({ status: true, message: 'Token Generated!', code : 201 });
             })
             .catch(err => next(err));
     },
