@@ -18,11 +18,11 @@ router.route('/received')
     .options(cors.corsWithOptions,(req, res) => res.sendStatus(200))
     .all(cors.corsWithOptions,authenticate.verifyUser)
     .get(ReminderController.viewReceivedReminders)
-    .post(ReminderController.readReminder);
 
-router.route('/delete/:reminderId')
+router.route('/:reminderId')
     .options(cors.corsWithOptions,(req,res) => res.sendStatus(200))
     .all(cors.corsWithOptions,authenticate.verifyUser)
+    .post(ReminderController.readReminder)
     .delete(ReminderController.deleteReminder);
 
 module.exports = router;

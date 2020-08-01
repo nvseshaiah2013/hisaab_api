@@ -211,9 +211,10 @@ const BorrowController = {
     updateMoneyBorrow: (req, res, next) => {
         let borrowId = req.params.borrowId;
         let updatedBorrow = req.body;
+        console.log(updatedBorrow);
         BorrowMoney.findOne({ _id: borrowId, borrower: req.user._id })
             .then((borrow) => {
-                if (!borrower) {
+                if (!borrow) {
                     let error = new Error(`The requested resource cannot be found!`);
                     error.status = 404;
                     throw error;
@@ -231,8 +232,8 @@ const BorrowController = {
                         throw error;
                     }
                     else {
-                        expectedReturnDate = getFormattedDate(rupdatedBorrow.expectedReturnDate);
-                        borrow.expected_return_date = expectedReturnDate;
+                        expectedReturnDate = getFormattedDate(updatedBorrow.expectedReturnDate);
+                        borrow.expected_return_date = new Date(expectedReturnDate);
                     }
                 }
                 if (updatedBorrow.place) {
@@ -241,8 +242,8 @@ const BorrowController = {
                 if (updatedBorrow.occasion) {
                     borrow.occasion = updatedBorrow.occasion;
                 }
-                if (updatedBorrow.money) {
-                    borrow.money = updatedBorrow.money;
+                if (updatedBorrow.amount) {
+                    borrow.amount = updatedBorrow.amount;
                 }
                 return borrow.save();
             })
@@ -264,7 +265,7 @@ const BorrowController = {
                 }
             })
             .then((token) => {
-                return BorrowItem.findOne({ _id: token.borrow_id });
+                return BorrowMoney.findOne({ _id: token.borrow_id }).select('-__v').populate('borowee','-password -_id -__v');
             })
             .then((borrow) => {
                 res.json({ status: true, message: 'Your borrow updated! You need to validate again.', borrow: borrow });
@@ -276,7 +277,7 @@ const BorrowController = {
         let updatedBorrow = req.body;
         BorrowItem.findOne({ _id: borrowId, borrower: req.user._id })
             .then((borrow) => {
-                if (!borrower) {
+                if (!borrow) {
                     let error = new Error(`The requested resource does not exist!`);
                     error.status = 404;
                     throw error;
@@ -294,8 +295,8 @@ const BorrowController = {
                         throw error;
                     }
                     else {
-                        expectedReturnDate = getFormattedDate(rupdatedBorrow.expectedReturnDate);
-                        borrow.expected_return_date = expectedReturnDate;
+                        expectedReturnDate = getFormattedDate(updatedBorrow.expectedReturnDate);
+                        borrow.expected_return_date = new Date(expectedReturnDate);
                     }
                 }
                 if (updatedBorrow.place) {
@@ -330,7 +331,7 @@ const BorrowController = {
                 }
             })
             .then((token) => {
-                return BorrowItem.findOne({ _id: token.borrow_id });
+                return BorrowItem.findOne({ _id: token.borrow_id }).select('-__v').populate('borowee','-password -_id -__v');;
             })
             .then((borrow) => {
                 res.json({ status: true, message: 'Your borrow updated! You need to validate again.', borrow: borrow });
@@ -346,7 +347,7 @@ const BorrowController = {
                     error.status = 404;
                     throw error;
                 }
-                if (borrow.status !== 0 || borrow.status !== 2) {
+                if (borrow.status === 1) {
                     let error = new Error(`Unauthorized Operation : Cannot be Performed`);
                     error.status = 401;
                     throw error;

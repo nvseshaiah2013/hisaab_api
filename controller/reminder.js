@@ -9,12 +9,11 @@ router.use(bodyParser.json());
 
 const ReminderController = {
     remind : (req,res,next) => {
-        let { header, message } = req.body;
-        let borrowId = req.params.borrowId;
+        let { header, message, borrowId } = req.body;
         Borrow.findOne( { _id : borrowId, borrower : req.user._id })
         .then((borrow) => {
             if(!borrow) {
-                let error = new Error(`Borrow with id ${borrowId} does not exist`);
+                let error = new Error(`The requested resource not found`);
                 error.status = 404;
                 throw error;
             }
@@ -31,6 +30,7 @@ const ReminderController = {
                 message : message,
                 borrower : req.user._id,
                 borowee : borrow.borowee,
+                borrow_id : borrow._id
             });
             return newReminder.save();
         })
@@ -70,7 +70,9 @@ const ReminderController = {
         Reminder.find({ borrower : req.user._id })
             .skip((pageNo-1)*pageSize)
             .limit(pageSize)
-            .populate('borowee')
+            .select('-__v')
+            .populate('borowee','-__v -password -_id')
+            .populate('borrow_id')
             .lean()
             .then((reminders) => {
                 res.json({ status : true, message : 'Reminders Fetched!', reminders : reminders});
@@ -91,7 +93,9 @@ const ReminderController = {
         Reminder.find({ borowee : req.user._id })
             .skip((pageNo-1)*pageSize)
             .limit(pageSize)
-            .populate('borrower')
+            .select('-__v')
+            .populate('borrower','-__v -password -_id')
+            .populate('borrow_id')
             .lean()
             .then((reminders) => {
                 res.json({ status : true, message : 'Reminders Fetched!', reminders : reminders});
