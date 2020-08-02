@@ -15,7 +15,7 @@ const UserController = {
                 if (user) {
                     user.comparePwd(req.body.password, (err, success) => {
                         if (err) {
-                            throw err;
+                            return next(err);
                         }
                         else if (success) {
                             let token = authenticate.getToken({ _id: user._id });
@@ -41,7 +41,7 @@ const UserController = {
         User.findOne({ username: data.username })
             .then((user) => {
                 if (!user) {
-                    return User.create(new User({name : data.name, username : data.username, password : data.password}));
+                    return User.create(new User({ name: data.name, username: data.username, password: data.password }));
                 }
                 else {
                     let error = new Error(`The username is already in use. Try Again with different one!`);
@@ -50,13 +50,39 @@ const UserController = {
                 }
             })
             .then((user) => {
-                users.push({ name : user.name , username : user.username });
+                users.push({ name: user.name, username: user.username });
                 res.json({ status: true, message: 'You details saved Successfully! Login To Continue.' });
             })
             .catch((err) => next(err));
     },
     changePassword: (req, res, next) => {
-
+        let { oldPassword, newPassword } = req.body;
+        User.findOne({ _id: req.user._id })
+            .then((user) => {
+                if (!user) {
+                    let error = new Error(`The requested resource not found`);
+                    error.status = 404;
+                    throw error;
+                }
+                user.comparePwd(oldPassword, (err, success) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    else if (success) {
+                        user.password = newPassword;
+                        return user.save();
+                    }
+                    else {
+                        let err = new Error('Your credentials are incorrect!')
+                        err.status = 401;
+                        return next(err);
+                    }
+                });
+            })
+            .then(user=>{
+                    res.json({ status : true, message : 'Password Changed Successfully!'});
+            }) 
+            .catch(err => next(err));
     },
     forgotPassword: (req, res, next) => {
 
@@ -64,16 +90,16 @@ const UserController = {
     requestForgotPassword: (req, res, next) => {
 
     },
-    getUsers : (req,res,next ) => {
+    getUsers: (req, res, next) => {
         let username = req.query.username;
-        let filtered_users = users.filter(user => user.username.indexOf(username) >= 0 );
-        res.json({ status : true, message : 'Searched', users : filtered_users });
+        let filtered_users = users.filter(user => user.username.indexOf(username) >= 0);
+        res.json({ status: true, message: 'Searched', users: filtered_users });
     }
 }
 
 module.exports.UserController = UserController;
-module.exports.fetchUsers =  () => {
+module.exports.fetchUsers = () => {
     User.find()
-        .then((users_)=> users = users_.map(user=> ({ name : user.name, username : user.username })))
-        .catch((err)=>console.log(err));
+        .then((users_) => users = users_.map(user => ({ name: user.name, username: user.username })))
+        .catch((err) => console.log(err));
 };

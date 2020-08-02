@@ -433,10 +433,16 @@ const BorrowController = {
                 }
             })
             .then((borrow) => {
-                return Token.deleteMany({ borrow_id: borrow._id });
+                return Token.deleteOne({ borrow_id: borrow._id });
             })
             .then((token) => {
-                res.json({ status: true, message: 'Borrow Approved !' });
+                return Borrow.findOne({ _id : req.params.borrowId })
+                             .select('-__v')
+                             .populate('borowee','-password -_id -__v')
+                             .lean();
+            })
+            .then((borrow) => {
+                res.json({ status: true, message: 'Borrow Approved!', borrow: borrow });
             })
             .catch(err => next(err));
     },
@@ -483,10 +489,16 @@ const BorrowController = {
                 }
             })
             .then((borrow) => {
-                return Token.deleteMany({ borrow_id: borrow._id });
+                return Token.deleteOne({borrow_id: borrow._id });
             })
             .then((token) => {
-                res.json({ status: true, message: 'Borrow Returned !' });
+                return Borrow.findOne({ _id : req.params.borrowId })
+                             .select('-__v')
+                             .populate('borrower','-password -_id -__v')
+                             .lean();
+            })
+            .then((borrow) => {
+                res.json({ status: true, message: 'Borrow Returned !', borrow : borrow  });
             })
             .catch(err => next(err));
     },
@@ -514,8 +526,14 @@ const BorrowController = {
                 }
                 return {};
             })
-            .then(token => {
-                res.json({ status: true, message: 'You rejected the order!' });
+            .then((token) => {
+                return Borrow.findOne({ _id : req.params.borrowId })
+                             .select('-__v')
+                             .populate('borrower','-password -_id -__v')
+                             .lean();
+            })
+            .then(borrow => {
+                res.json({ status: true, message: 'You rejected the order!', borrow : borrow });
             })
             .catch(err => next(err));
     }
