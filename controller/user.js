@@ -2,9 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const User = require('../model/user');
 const authenticate = require('../config/auth');
+const Otp = require('../model/otp');
 const router = express();
+const mailSender = require('../utils/mailSenderUtil');
+const shortid = require('shortid');
 
 router.use(bodyParser.json());
+shortid.characters('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890@#');
+
 
 let users = [];
 
@@ -79,15 +84,35 @@ const UserController = {
                     }
                 });
             })
-            .then(user=>{
-                    res.json({ status : true, message : 'Password Changed Successfully!'});
-            }) 
+            .then(user => {
+                res.json({ status: true, message: 'Password Changed Successfully!' });
+            })
+            .catch(err => next(err));
+    },
+    requestForgotPassword: (req, res, next) => {
+        let username = req.query.username;
+        let secretToken;
+        User.findOne({ username: username })
+            .then(user => {
+                if (!user) {
+                    let error = new Error(`The requested resource is not found`);
+                    error.status = 404;
+                    throw error;
+                }
+                return Otp.deleteMany({ username: username });
+            })
+            .then(otp => {
+                secretToken = shortid.generate();
+                return Otp.create({ username: username, secretToken : secretToken });
+            })
+            .then(otp => {
+                let token = authenticate.getToken({ secretToken : secretToken });
+                mailSender(username, token);
+                res.json({ status : true, message : 'Reset Password Mail Sent'});
+            })
             .catch(err => next(err));
     },
     forgotPassword: (req, res, next) => {
-
-    },
-    requestForgotPassword: (req, res, next) => {
 
     },
     getUsers: (req, res, next) => {
