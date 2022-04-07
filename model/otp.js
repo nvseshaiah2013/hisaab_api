@@ -33,11 +33,8 @@ otpSchema.pre('save', function(next){
     });
 });
 
-otpSchema.methods.compareToken = function(secretToken, callback) {
-    bcrypt.compare(secretToken, this.secretToken, (err, result) => {
-        if (err) return callback(err);
-        callback(null, result);
-    });
+otpSchema.methods.compareToken = function(secretToken) {
+    return bcrypt.compareSync(secretToken, this.secretToken);
 }
 
 const Otp = mongoose.model('Otp', otpSchema);

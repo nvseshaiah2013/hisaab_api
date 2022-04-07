@@ -8,11 +8,11 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 exports.getToken = (user) => {
-    return jwt.sign(user,process.env.ENC_KEY,{expiresIn:3600,issuer:'lane_dane'});
+    return jwt.sign(user, process.env.KEY, {expiresIn:3600,issuer:'lane_dane'});
 }
 
 const opts = {
-    secretOrKey : process.env.ENC_KEY,
+    secretOrKey : process.env.KEY,
     jwtFromRequest : ExtractJwt.fromAuthHeaderAsBearerToken()
 }
 
@@ -32,3 +32,6 @@ exports.jwtPassport = passport.use('user-jwt',new JwtStrategy(opts,(jwt_payload,
 }));
 
 exports.verifyUser = passport.authenticate('user-jwt',{session : false});
+exports.decodeJwt = (token) => {
+    return jwt.verify(token, process.env.KEY);
+}

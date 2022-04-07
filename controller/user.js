@@ -6,6 +6,8 @@ const Otp = require('../model/otp');
 const router = express();
 const mailSender = require('../utils/mailSenderUtil');
 const shortid = require('shortid');
+const isSecretCodeValid = require('../utils/dateValidation').isSecretCodeValid;
+const TokenExpiredError = require('jsonwebtoken').TokenExpiredError;
 
 router.use(bodyParser.json());
 shortid.characters('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890@#');
@@ -106,14 +108,56 @@ const UserController = {
                 return Otp.create({ username: username, secretToken : secretToken });
             })
             .then(otp => {
-                let token = authenticate.getToken({ secretToken : secretToken });
+                let token = authenticate.getToken({ secretToken : secretToken, username : username });
                 mailSender(username, token);
                 res.json({ status : true, message : 'Reset Password Mail Sent'});
             })
             .catch(err => next(err));
     },
     forgotPassword: (req, res, next) => {
-
+        let { password , token, confirm_password } = req.body;
+        try {
+            let decodedToken = authenticate.decodeJwt(token);
+            let { secretToken, username } = decodedToken;
+            Otp.findOne({ username : username })
+                .then(otp => {
+                    if (!otp || !otp.compareToken(secretToken)) {
+                        let error = new Error('Some Error Occured');
+                        error.status = 400;
+                        console.error(`The reset password request for ${username} is rejected as no secret token found`);
+                        throw error;
+                    }                    
+                    let createdDate = otp.createdAt;
+                    if (!isSecretCodeValid(createdDate, otp.validTill)) {
+                        let error = new Error('The reset password link expired');
+                        error.status = 401;
+                        console.error(`The reset password token expired for user ${username}`);
+                        throw error;
+                    }
+                    return User.findOne({ username : username });
+                })
+                .then(user => {
+                    if (!user) {
+                        let error = new Error('Some Error Occured');
+                        error.status = 400;
+                        console.error(`The reset password request for ${username} is rejected as no user found`);
+                        throw error;
+                    }
+                    user.password = password;
+                    return user.save();
+                })
+                .then(user => {
+                    return Otp.deleteOne({ username : username });
+                })
+                .then(otp => {
+                    res.json({ status : true, message : 'Password Changed Successfully. Login To Continue'});
+                })
+                .catch(err => next(err));
+        } catch(exception) {
+            let error = new Error(exception instanceof TokenExpiredError ? exception.message : 'Unknown Error');
+            console.error(exception.message);
+            throw error;
+        }
     },
     getUsers: (req, res, next) => {
         let username = req.query.username;

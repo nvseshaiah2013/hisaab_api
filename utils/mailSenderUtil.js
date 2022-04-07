@@ -24,19 +24,35 @@ module.exports = async (userEmail, token) => {
             subject : 'Reset Your Hisaab Kitaab Account Password',
             text : "Test",
             html : `
-                <div> 
-                    <h2> Please follow the password reset instructions </h2>
-
-                    <p> If the requester was not you then please write to hisaab.kitaab@gmail.com . </p>
-                    <div style='text-align : center;'> 
-                        <a href='${process.env.BASE_URL}/reset-password?reset-token=${token}' target='_blank'
-                        style='padding:10px; color : white; background-color : blue;'
-                        > Reset Password </a>
+            <!DOCTYPE html>
+            <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+                xmlns:o="urn:schemas-microsoft-com:office:office">
+            
+            <head>
+                <meta charset="utf-8"> <!-- utf-8 works for most cases -->
+                <meta name="viewport" content="width=device-width"> <!-- Forcing initial-scale shouldn't be necessary -->
+                <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Use the latest (edge) version of IE rendering engine -->
+                <meta name="x-apple-disable-message-reformatting">
+            </head>
+            
+            <body>
+                <div>
+                    <h2 style="text-align: center;"> Please follow the password reset instructions </h2>
+            
+                    <p style="text-align: center; margin:1.5rem 0;"> If the requester was not you then please write to <a
+                            href="mailto:hisaab.kitaab@gmail.com">hisaab.kitaab@gmail.com</a> . </p>
+                    <div style='text-align : center;'>
+                        <a href="${process.env.BASE_URL}/reset-password?reset-token=${token}" target="_blank"
+                            style="padding:10px; color : white; background-color : blue;" rel="noopener noreferrer"> Reset Password </a>
                     </div>
-                    <div>
-                    If the above button does not work then follow the link ${process.env.BASE_URL}/reset-password?reset-token=${token}
+                    <div style="text-align: center; margin:1.5rem;">
+                        If the above button does not work then follow the link
+                        ${process.env.BASE_URL}/reset-password?reset-token=${token}
                     </div>
                 </div>
+            </body>
+            
+            </html>
             `
         });
     

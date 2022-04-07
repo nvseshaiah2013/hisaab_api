@@ -15,3 +15,7 @@ module.exports.isAfterOrToday = (date) => {
 module.exports.isTokenValid = (token,validTill) => {
     return moment(new Date()).isSameOrBefore(moment(token).add(validTill,'minutes'));
 }
+
+module.exports.isSecretCodeValid = (createdDate, validTill) => {
+    return moment.utc(new Date()).isSameOrBefore(moment(createdDate).add(validTill, 'minutes'));
+}
