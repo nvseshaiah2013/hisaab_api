@@ -1,8 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const dotenv = require('dotenv');
 
-const whitelist = ['http://localhost:3000', 'https://localhost:3443','http://localhost:3001'];
+dotenv.config();
+
+const whitelist = [process.env.BASE_URL];
 var corsOptionsDelegate = (req, callback) => {
     var corsOptions;
     if(whitelist.indexOf(req.header('Origin')) !== -1) {
