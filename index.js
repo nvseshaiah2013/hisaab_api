@@ -8,8 +8,9 @@ const userRouter = require('./routes/user');
 const tokenRouter = require('./routes/token');
 const reminderRouter = require('./routes/reminder');
 const borrowRouter = require('./routes/borrow');
-const http = require('http');
-const https = require('https');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 app.use(bodyParser.json());
 app.use(passport.initialize());
@@ -33,4 +34,6 @@ app.use((err,req,res,next) => {
     res.json({status : false, message : err.message});
 });
 
-app.listen(3080);
+app.listen(process.env.PORT || 3080, () => {
+    console.log(`Server started running on port ${process.env.PORT}`);
+});
