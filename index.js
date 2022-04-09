@@ -33,5 +33,4 @@ app.use((err,req,res,next) => {
     res.json({status : false, message : err.message});
 });
 
-http.createServer(app).listen(3080);
-https.createServer(app).listen(3443);
+app.listen(3080);
