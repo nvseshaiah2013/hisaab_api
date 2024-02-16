@@ -26,7 +26,7 @@ const UserController = {
                         }
                         else if (success) {
                             let token = authenticate.getToken({ _id: user._id });
-                            res.json({ status: true, message: 'You are authenticated!', token: token });
+                            res.json({ status: true, message: 'You are authenticated!', token: token, name: user.name });
                         }
                         else {
                             let err = new Error('Your credentials are incorrect!')
